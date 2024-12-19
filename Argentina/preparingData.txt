@@ -58,3 +58,10 @@ plt.title("Distribution of Apartment sizes")
 
 -------------------------------------------------------------------------
 
+Task: 
+Add to your wrangle function so that it removes observations that are outliers in the "surface_covered_in_m2" column. 
+Specifically, all observations should fall between the 0.1 and 0.9 quantiles for "surface_covered_in_m2"
+
+Solution -  add this bit to the wrangle function already created earlier (see above)
+low, high = df["surface_covered_in_m2"].quantile([0.1, 0.9])
+mask_area = df["surface_covered_in_m2"].between(low, high)
