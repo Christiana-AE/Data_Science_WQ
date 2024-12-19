@@ -1,0 +1,60 @@
+import warnings
+
+import matplotlib.pyplot as plt
+import pandas as pd
+from IPython.display import VimeoVideo
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+from sklearn.utils.validation import check_is_fitted
+
+
+In this project, you're working for a client who wants to create a model that can predict the price of apartments in the 
+city of Buenos Aires — with a focus on apartments that cost less than $400,000 USD.
+
+
+--------------------------------------------------------------------
+### Task
+Write a function to clean your data so that it only contains properties in Capital Federal which are apartments and for which
+the cost in dollars is less than $400,000
+
+
+### Solution
+
+def wrangle(filepath):
+    df = pd.read_csv(filepath)
+    
+    # Subset to properties in "Capital Federal"
+    mask_ba = df["place_with_parent_names"].str.contains("Capital Federal")
+    
+    #Subset to Properties that are apartments
+    mask_apt = df["property_type"] == "apartment"
+    
+    # Subset to Properties where price in Dollars is less than 400,000
+    mask_price = df["price_aprox_usd"] < 400_000
+    
+    df = df[mask_ba & mask_apt & mask_price]
+
+    return df
+
+df = wrangle("data/buenos-aires-real-estate-1.csv")
+df.head()
+
+# Check your work
+assert (
+    len(df) <= 1781
+), f"`df` should have no more than 1781 observations, not {len(df)}."
+
+-------------------------------------------------------------------------
+
+
+Task:
+Create a histogram of "surface_covered_in_m2". Make sure that the x-axis has the label "Area [sq meters]" and the plot 
+has the title "Distribution of Apartment Sizes".
+
+Solution
+plt.hist(df["surface_covered_in_m2"])
+plt.xlabel("Area [sq meters]")
+plt.title("Distribution of Apartment sizes")
+
+-------------------------------------------------------------------------
+
