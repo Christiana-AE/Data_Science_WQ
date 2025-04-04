@@ -147,9 +147,91 @@ print("Baseline MAE:", round(mae_baseline, 2))
 
 ------------------------------------------------------------------------------------
 
+
+Iterate
+
 Because of the math it uses, a linear regression model can't handle observations where there are missing values.
 Models generally perform better when they have more data to train with, so every row is precious.
 Instead, we can fill in these missing values using information we get from the whole column — a process called imputation. 
 There are many different strategies for imputing missing values, and one of the most common is filling in the missing values with the mean of the column.
 
 In addition to predictors like LinearRegression, scikit-learn also has transformers that help us deal with issues like missing values.
+
+Task
+Instantiate a SimpleImputer named imputer
+
+
+"""
+We need to find a way to deal with missing values because we cannot make predictions with missing values it will return a ValueError- 
+Use the transformer first to transform your data, then use predictor afterwards to view the prediction
+In scikit learn, you typically should put your transformer and predictor (Linear Regression) into a single package called a pipeline
+"""
+
+imputer = SimpleImputer()
+
+Task
+Fit your transformer imputer to the feature matrix X.
+
+"""
+We need to train our imputer to use it. What the imputer does is to look at each column and identify the missing rows. 
+It then fills it with these with the mean of the entire column
+We will pass in just the feature matrix (i.e. X_train), as this is the only field we are training)
+"""
+
+imputer.fit(X_train)
+
+
+Task
+Use your imputer to transform the feature matrix X_train. Assign the transformed data to the variable XT_train.
+
+XT_train = imputer.transform(X_train)
+pd.DataFrame(XT_train, columns=X_train.columns).info()
+
+
+Pipeline Creation
+Create a pipeline named model that contains a SimpleImputer transformer followed by a LinearRegression predictor.
+
+"""
+You can have as many transformers as you like to transform your data (Simple imputer in my case), but you can only have one predictor
+The predictor comes after all the transformers - in this case my predictor is Linear Regression
+"""
+
+model = make_pipeline(
+    SimpleImputer(),
+    LinearRegression()
+)
+
+Train Model after Building Pipeline
+Task 
+Fit your model to the data, X_train and y_train
+
+model.fit(X_train, y_train)
+
+Evaluate model performance after training
+
+Task: Using your model's predict method, create a list of predictions for the observations in your feature matrix X_train. Name this list y_pred_training.
+
+y_pred_training = model.predict(X_train)
+
+Task: Calculate the training mean absolute error for your predictions in y_pred_training as compared to the true targets in y_train.
+
+mae_training = mean_absolute_error(y_train, y_pred_training)
+print("Training MAE:", round(mae_training, 2))
+
+
+Communicating result
+
+The below is the equation our model has used to predict price based on two variables: latitude and longitude
+price = intercept + (coefficient * variable_1) + (coefficient * variable_2)
+
+Task: Extract the intercept and coefficients for your model.
+
+"""
+This is going to be different from how we did it when there was just one variable
+Because we use the pipeline (containing the imputer and predictor), 
+to get the intercept, we have to go into the pipeline and from there go to the predictor to get the intercept and coefficients
+The coefficients resulted in an array with two values corresponding to the two variables for longitude and latitude
+"""
+
+intercept = model.named_steps["linearregression"].intercept_.round()
+coefficients = model.named_steps["linearregression"].coef_.round()
