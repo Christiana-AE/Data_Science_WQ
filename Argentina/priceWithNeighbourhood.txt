@@ -1,0 +1,161 @@
+3.
+
+Module notes 
+- In this module, we are looking at predicting price using a categorical data point - neighbourhood
+- You can either be on the neighbourhood or not - hence why it is categorical 
+- How do we train data using categorical data - think about overfitting your model 
+- Use one hot encoder to iterate 
+
+
+------------------------------------------------------------------------------------
+Task
+Use glob to create a list that contains the filenames for all the Buenos Aires real estate CSV files in the data directory. 
+Assign this list to the variable name files.
+
+glob is used to identify patterns - useful for working with multiple files for instance
+
+files = glob("data/buenos-aires-real-estate-*.csv")
+files
+
+
+
+------------------------------------------------------------------------------------
+Task 
+Use your wrangle function in a for loop to create a list named frames. The list should the cleaned DataFrames created from the CSV filenames your 
+collected in files. Use pandas to combine all the DataFrames in frames. (remember we created wrangle function earlier)
+
+frames = []
+for file in files:
+    df = wrangle(file)
+    frames.append(df)
+
+
+df = pd.concat(frames, ignore_index=True)
+df.shape
+
+
+------------------------------------------------------------------------------------
+Task 
+Modify your wrangle function to create a new feature "neighborhood". You can find the neighborhood for each property in the "place_with_parent_names" column. 
+For example, a property with the place name "|Argentina|Capital Federal|Palermo|" is located in the neighborhood is "Palermo". 
+Also, your function should drop the "place_with_parent_names" column.
+
+Add the below to the wrangle function 
+# Extract neighbourhood
+df["neighborhood"] = df["place_with_parent_names"].str.split("|", expand = True)[3]
+df.drop(columns="place_with_parent_names", inplace = True)
+
+
+------------------------------------------------------------------------------------
+Task 
+Create your feature matrix X_train and target vector y_train. X_train should contain one feature: "neighborhood". Your target is "price_aprox_usd".
+
+target = "price_aprox_usd"
+features = ["neighborhood"]
+y_train = df[target]
+X_train = df[features]
+
+------------------------------------------------------------------------------------
+
+Build Model
+
+Task
+Calculate the baseline mean absolute error for your model.
+
+y_mean = y_train.mean()
+y_pred_baseline = [y_mean] * len(y_train)
+print("Mean apt price:", y_mean)
+
+print("Baseline MAE:", mean_absolute_error(y_train, y_pred_baseline))
+
+
+Linear Regression is typically for numerical fields / operations, hence if we use it for the above which has categorical data it will result in Value error
+We need to first encode our categorical data (neighborhood), before performing regression on it 
+
+
+------------------------------------------------------------------------------------
+
+Task
+First, instantiate a OneHotEncoder named ohe. Make sure to set the use_cat_names argument to True. Next, fit your transformer to the feature matrix X_train. 
+Finally, use your encoder to transform the feature matrix X_train, and assign the transformed data to the variable XT_train.
+
+# Instantiate
+ohe = OneHotEncoder(use_cat_names = True)
+
+#Fit
+ohe.fit(X_train)
+
+#Transform 
+XT_train = ohe.transform(X_train)
+print(XT_train.shape)
+XT_train.head()
+
+------------------------------------------------------------------------------------
+
+Task
+
+Create a pipeline named model that contains a OneHotEncoder transformer and a LinearRegression predictor. Then fit your model to the training data.
+
+model = make_pipeline(
+    OneHotEncoder(use_cat_names = True),
+    LinearRegression()
+)
+model.fit(X_train, y_train)
+
+------------------------------------------------------------------------------------
+
+Evaluate
+
+
+Task
+First, create a list of predictions for the observations in your feature matrix X_train. Name this list y_pred_training. 
+Then calculate the training mean absolute error for your predictions in y_pred_training as compared to the true targets in y_train.
+
+y_pred_training = model.predict(X_train)
+mae_training = mean_absolute_error(y_train, y_pred_training)
+print("Training MAE:", round(mae_training, 2))
+
+------------------------------------------------------------------------------------
+
+Task
+Extract the intercept and coefficients for your model.
+
+intercept = model.named_steps["linearregression"].intercept_
+coefficients = model.named_steps["linearregression"].coef_
+print("coefficients len:", len(coefficients))
+print(coefficients[:5])  # First five coefficients
+
+
+We have the values of our coefficients, but how do we know which features they belong to? 
+We'll need to get that information by going into the part of our pipeline that did the encoding.
+
+------------------------------------------------------------------------------------
+
+Task
+Extract the feature names of your encoded data from the OneHotEncoder in your model.
+
+feature_names = model.named_steps["onehotencoder"].get_feature_names()
+print("features len:", len(feature_names))
+print(feature_names[:5])  # First five feature names
+
+After getting the names of the neighbourhoods above, we need to put them together with their respective coefficients, for this we will use a Series
+
+Task
+Create a pandas Series named feat_imp where the index is your features and the values are your coefficients
+
+feat_imp = pd.Series(coefficients, index = feature_names)
+feat_imp.head()
+
+
+Use Ridge regression (instead of linear) to help comabt the problem of overfitting
+Do this by replacing above items which reference Linear Regression with Ridge
+
+-----------------------------------------------------------------------------------
+
+Task
+
+Create a horizontal bar chart that shows the top 15 coefficients for your model, based on their absolute value.
+feat_imp.sort_values(key=abs).tail(15).plot(kind = "barh")
+plt.xlabel ("Importance [USD]")
+plt.ylabel("Feature")
+plt.title("Feature Importance for Apartment Price")

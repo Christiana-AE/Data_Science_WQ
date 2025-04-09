@@ -188,6 +188,7 @@ XT_train = imputer.transform(X_train)
 pd.DataFrame(XT_train, columns=X_train.columns).info()
 
 
+
 Pipeline Creation
 Create a pipeline named model that contains a SimpleImputer transformer followed by a LinearRegression predictor.
 
@@ -200,6 +201,8 @@ model = make_pipeline(
     SimpleImputer(),
     LinearRegression()
 )
+
+
 
 Train Model after Building Pipeline
 Task 
@@ -219,6 +222,7 @@ mae_training = mean_absolute_error(y_train, y_pred_training)
 print("Training MAE:", round(mae_training, 2))
 
 
+
 Communicating result
 
 The below is the equation our model has used to predict price based on two variables: latitude and longitude
@@ -235,3 +239,39 @@ The coefficients resulted in an array with two values corresponding to the two v
 
 intercept = model.named_steps["linearregression"].intercept_.round()
 coefficients = model.named_steps["linearregression"].coef_.round()
+
+
+Plotting the data
+Complete the code below to create a 3D scatter plot, with "lon" on the x-axis, "lat" on the y-axis, and "price_aprox_usd" on the z-axis
+
+# Create 3D scatter plot
+fig = px.scatter_3d(
+    df,
+    x= "lon",
+    y= "lat",
+    z= "price_aprox_usd",
+    labels={"lon": "longitude", "lat": "latitude", "price_aprox_usd": "price"},
+    width=600,
+    height=500,
+)
+
+# Create x and y coordinates for model representation
+x_plane = np.linspace(df["lon"].min(), df["lon"].max(), 10)
+y_plane = np.linspace(df["lat"].min(), df["lat"].max(), 10)
+xx, yy = np.meshgrid(x_plane, y_plane)
+
+# Use model to predict z coordinates
+z_plane = model.predict(pd.DataFrame({"lon": x_plane, "lat": y_plane}))
+zz = np.tile(z_plane, (10, 1))
+
+# Add plane to figure
+fig.add_trace(go.Surface(x=xx, y=yy, z=zz))
+
+# Refine formatting
+fig.update_traces(
+    marker={"size": 4, "line": {"width": 2, "color": "DarkSlateGrey"}},
+    selector={"mode": "markers"},
+)
+
+# Display figure
+fig.show()
