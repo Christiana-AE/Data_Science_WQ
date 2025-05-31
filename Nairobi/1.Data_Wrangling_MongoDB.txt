@@ -1,0 +1,44 @@
+Wrangling Data sourced from Databases - MongoDB
+
+Connect to MongoDb server
+Explore the database and locate the PM2.5 air quality reading
+Import data into a DataFrame and build a model
+
+Highlights
+- Prepare Data (Connect, Explore, Import)
+Connect: Connect to MongoDB
+Explore: What is data model for MongoDB? What is semi structured data? How do you query database using pymongo?
+Import: Import query results into a DataFrame
+
+
+Libraries used 
+prettyprinter: makes formatting easier to read from database
+pymongo: used to get data from mongodb server
+
+Data from MongoDB is given in dictionaries, pretty printer helps to ensure the layout is easier
+
+
+Libraries 
+from pprint import PrettyPrinter
+import pandas as pd
+from IPython.display import VimeoVideo
+from pymongo import MongoClient
+
+------------------------------------------------------------------------------
+PREPARE DATA - Connect
+
+Data from MongoDB is given in dictionaries, pretty printer helps to ensure the layout is easier
+
+Task:  Instantiate a PrettyPrinter, and assign it to the variable pp.
+pp = PrettyPrinter(indent = 2)
+
+
+Task: Create a client that connects to the database running at localhost on port 27017
+client = MongoClient(host = "localhost", port=27017)
+
+
+------------------------------------------------------------------------------
+PREPARE DATA - Explore
+
+
+
