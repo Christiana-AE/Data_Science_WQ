@@ -74,8 +74,45 @@ nairobi.count_documents({})
 
 ------------------------------------------------------------------------------
 Task: Use the find_one method to retrieve one document from the nairobi collection, and assign it to the variable name result
+NOTES: There are 2 kinds of methods to possibly be used, find and find_one
+find retrieves all documents in the collection
+find_one retrieves the first document only
 
 result = nairobi.find_one({})
 pp.pprint(result)
 
+
+
+ANALYZE THE DATA
 ------------------------------------------------------------------------------
+Task: Use the distinct method to determine how many sensor sites are included in the nairobi collection.
+
+# To find the Unique sites in the Nairobi data
+nairobi.distinct("metadata.site")
+
+------------------------------------------------------------------------------
+Task: Use the count_documents method to determine how many readings there are for each site in the nairobi collection.
+
+Note: There were two sites in this dataset: site 6 and site 29, hence the below output
+
+print("Documents from site 6:", nairobi.count_documents({"metadata.site":6}))
+print("Documents from site 29:", nairobi.count_documents({"metadata.site":29}))
+
+------------------------------------------------------------------------------
+Task: Use the aggregate method to determine how many readings there are for each site in the nairobi collection.
+
+NOTE: In the above exercise, we counted document readings for sites 6 and 9 one at a time
+If we had lots of documents, it would have been an inefficient approach
+To count all documents at the same time do below
+We add the dollar sign ($) to indicate to the collection that we are creating something new 
+
+result = nairobi.aggregate(
+    [
+        {"$group": {"_id": "$metadata.site", "count" : {"$count" : {}}}}
+    ]
+)
+pp.pprint(list(result))
+
+------------------------------------------------------------------------------
+Task: Use the distinct method to determine how many types of measurements have been taken in the nairobi collection.
+
