@@ -40,5 +40,42 @@ client = MongoClient(host = "localhost", port=27017)
 ------------------------------------------------------------------------------
 PREPARE DATA - Explore
 
+Iterator: An iterator is a function that allows Python deliver a stream of data. it allows python to save on memory space
+It is important for MongoDB because we want to save on memory usage
+
+Task: Print a list of the databases available on client.
+
+pp.pprint(list(client.list_databases()))
+We wrapped it in list as without the list function, the output produced was the memory location
 
 
+------------------------------------------------------------------------------
+
+Task: Assign the "air-quality" database to the variable db.
+
+db = client["air-quality"]
+
+------------------------------------------------------------------------------
+
+Task: Use the list_collections method to print a list of the collections available in db.
+
+for c in db.list_collections():
+    print(c["name"])
+
+------------------------------------------------------------------------------
+Task: Assign the "nairobi" collection in db to the variable name nairobi
+
+nairobi = db["nairobi"]
+
+------------------------------------------------------------------------------
+Task: Use the count_documents method to see how many documents are in the nairobi collection.
+
+nairobi.count_documents({})
+
+------------------------------------------------------------------------------
+Task: Use the find_one method to retrieve one document from the nairobi collection, and assign it to the variable name result
+
+result = nairobi.find_one({})
+pp.pprint(result)
+
+------------------------------------------------------------------------------
